@@ -1,34 +1,39 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import Cocktail from '@/components/Cocktail'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './components/ui/card'
+import { Button } from './components/ui/button'
+import { useCallback, useEffect, useState } from 'react'
+import axios from 'axios'
 
-function App() {
-  const [count, setCount] = useState(0)
+const App = () => {
+  const [cocktail, setCocktail] = useState<{ drinks: Cocktail[] }>()
+  const [error, setError] = useState()
+
+  const getCocktail = useCallback(async () => {
+    const res = await axios.get('https://www.thecocktaildb.com/api/json/v1/1/random.php')
+    setCocktail(res.data)
+  }, [setCocktail])
+
+  useEffect(() => {
+    try {
+      getCocktail()
+    } catch (error: any) {
+      setError(error)
+    }
+  }, [getCocktail])
 
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <Card className='border-none shadow-none flex flex-col max-w-screen-xl mx-auto h-screen  justify-center'>
+      <CardHeader className='text-center'>
+        <CardTitle className='text-6xl'>Your random cocktail today!</CardTitle>
+        <CardDescription className='text-xl'>Press the button and get a cocktail!</CardDescription>
+      </CardHeader>
+
+      <CardContent>
+        <Cocktail cocktail={cocktail?.drinks[0]} error={error} />
+      </CardContent>
+
+      <Button size={'lg'} className='text-xl py-8' onClick={() => getCocktail()}>New!</Button>
+    </Card>
   )
 }
 
